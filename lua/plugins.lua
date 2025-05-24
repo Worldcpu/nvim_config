@@ -13,6 +13,35 @@ vim.opt.rtp:prepend(lazypath)
 
 
 require("lazy").setup({
+    
+{
+  "akinsho/bufferline.nvim",
+  config = function()
+    -- 按键设置
+    vim.keymap.set("n", "<C-i>", ":bnext<CR>")
+    vim.keymap.set("n", "<C-n>", ":bprevious<CR>")
+    vim.keymap.set("n", "<C-e>", ":bdelete<CR>")
+
+    require "bufferline".setup {
+      options = {
+        -- 使用 nvim 内置 lsp
+        diagnostics = "nvim_lsp",
+
+        -- 左侧让出 nvim-tree 的位置
+        offsets = {
+          filetype = "NvimTree",
+          text = "File Explorer",
+          highlight = "Directory",
+          text_align = "left" }
+      }}
+  end
+},
+    {
+    'numToStr/Comment.nvim',
+    opts = {
+        -- add any options here
+    }
+},
 "nvim-neotest/nvim-nio",
 {
     'nvim-lualine/lualine.nvim',
@@ -32,6 +61,8 @@ require("lazy").setup({
 "gen740/SmoothCursor.nvim",
 "nvim-tree/nvim-tree.lua",
 "nvim-lualine/lualine.nvim",
+'nvim-tree/nvim-web-devicons',
+'nvimdev/dashboard-nvim',
 	  -- LSP 相关插
       "onsails/lspkind.nvim",
   "neovim/nvim-lspconfig",      -- LSP 配置
@@ -42,6 +73,7 @@ require("lazy").setup({
   "hrsh7th/cmp-buffer",         -- 缓冲区补全
   "hrsh7th/cmp-path",           -- 路径补全
   "L3MON4D3/LuaSnip",           -- 代码片段引擎
+
 {
     'windwp/nvim-autopairs',
     event = "InsertEnter",
@@ -225,3 +257,48 @@ require('lualine').setup {
   inactive_winbar = {},
   extensions = {}
 }
+
+require('Comment').setup()
+
+-- DASHBOARD
+local status, db  = pcall(require, "dashboard")
+if not status then
+  vim.notify("没有找到 dashboard")
+  return
+end
+
+db.setup({
+  theme = 'hyper',
+  config = {
+    week_header = {
+    enable = true,
+    },
+    shortcut = {
+      { desc = '󰊳 init.lua', 
+        group = '@property', 
+        action = 'edit ~/.config/nvim/init.lua', 
+        key = 'e' 
+      },
+      {
+        icon = ' ',
+        icon_hl = '@variable',
+        desc = 'Files',
+        group = 'Label',
+        action = 'Telescope find_files',
+        key = 'f',
+      },
+      {
+        desc = ' Projects',
+        group = 'DiagnosticHint',
+        action = 'Telescope projects',
+        key = 'p',
+      },
+      {
+        desc = ' Oldfiles',
+        group = 'Number',
+        action = 'Telescope oldfiles',
+        key = 'o',
+      },
+    },
+  },
+})

@@ -3,6 +3,7 @@ require('plugins')
 require('colorscheme')
 require('lsp')
 require('keymaps')
+-- require("dap")
 
 -- 显示诊断信息（错误、警告等）
 vim.diagnostic.config({
