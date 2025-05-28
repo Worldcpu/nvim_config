@@ -17,6 +17,8 @@ end
 vim.opt.rtp:prepend(lazypath)
 -- 安装插件管理器 lazy.nvim
 require("lazy").setup({
+    -- 侧边滚动
+    'dstein64/nvim-scrollview',
     -- bufferline
     {'akinsho/bufferline.nvim', version = "*", dependencies = 'nvim-tree/nvim-web-devicons'},
 
@@ -36,6 +38,27 @@ require("lazy").setup({
     "rcarriga/nvim-notify",
     }
 },
+
+  -- 提示窗口引擎插件
+  {
+    "L3MON4D3/LuaSnip",
+    -- follow latest release.
+    version = "v2.*",
+    dependencies = { "rafamadriz/friendly-snippets" },
+    config = function()
+      require("luasnip.loaders.from_vscode").lazy_load()
+    end,
+  },
+    -- 提供用于显示诊断等信息的列表
+  {
+    "folke/trouble.nvim",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    opts = {
+      -- your configuration comes here
+      -- or leave it empty to use the default settings
+      -- refer to the configuration section below
+   },
+    },
     -- 代码块缩进显示插件
 {
   "lukas-reineke/indent-blankline.nvim",
@@ -50,8 +73,8 @@ require("lazy").setup({
   end,
 },
 
-    -- 平滑滚动插件
-  { "karb94/neoscroll.nvim" },
+
+
 
     -- 给成对括号、花括号等添加不同的颜色 会造成一些卡顿
     {
@@ -92,6 +115,87 @@ require("lazy").setup({
 },
 -- TokyoNight主题
 'folke/tokyonight.nvim',
+  -- LSP 设置
+  {
+    "neovim/nvim-lspconfig",
+    dependencies = {
+      -- LSP 服务器自动安装器
+      { "williamboman/mason.nvim", build = ":MasonUpdate" },
+      { "williamboman/mason-lspconfig.nvim" },
+      -- 补全插件
+      { "hrsh7th/nvim-cmp" },
+      { "hrsh7th/cmp-nvim-lsp" },
+      { "saadparwaiz1/cmp_luasnip" },
+      { "L3MON4D3/LuaSnip" },
+    },
+    config = function()
+      require("mason").setup()
+
+      local lspconfig = require("lspconfig")
+      local cmp_nvim_lsp = require("cmp_nvim_lsp")
+
+      -- clangd 配置
+      lspconfig.clangd.setup({
+        on_attach = function(client, bufnr)
+          client.server_capabilities.documentFormattingProvider = false
+        end,
+        capabilities = cmp_nvim_lsp.default_capabilities(),
+        flags = {
+          debounce_text_changes = 150,
+        },
+      })
+    end,
+  },
+
+  -- 补全插件配置
+  {
+    "hrsh7th/nvim-cmp",
+    event = "InsertEnter",
+    config = function()
+      local cmp = require("cmp")
+      cmp.setup({
+        snippet = {
+          expand = function(args)
+            require("luasnip").lsp_expand(args.body)
+          end,
+        },
+        mapping = cmp.mapping.preset.insert({
+          ["<C-d>"] = cmp.mapping.scroll_docs(-4),
+          ["<C-f>"] = cmp.mapping.scroll_docs(4),
+          ["<C-Space>"] = cmp.mapping.complete(),
+          ["<CR>"] = cmp.mapping.confirm({ select = true }), -- 回车确认选择
+          ["<Tab>"] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.select_next_item()
+            else
+              fallback()
+            end
+          end, { "i", "s" }),
+          ["<S-Tab>"] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.select_prev_item()
+            else
+              fallback()
+            end
+          end, { "i", "s" }),
+        }),
+      sources = {
+        { name = "nvim_lsp", max_item_count = 10 }, -- 设置 LSP 最多显示 10 条
+        { name = "luasnip", max_item_count = 10 },   -- 设置 luasnip 最多显示 10 条
+      },
+      })
+    end,
+  },
+
+  -- 模板片段支持
+  {
+    "L3MON4D3/LuaSnip",
+    version = "^2.0.0",
+    build = "make install_jsregexp",
+    config = function()
+      require("luasnip.loaders.from_vscode").lazy_load()
+    end,
+  },
   -- LSP 支持 + 安装器 + C++ clangd
   {
     "williamboman/mason.nvim",
@@ -137,14 +241,6 @@ require("lazy").setup({
       require("nvim-tree").setup()
     end,
   },
-  {
-    "Mofiqul/vscode.nvim",
-    lazy = false,
-    priority = 1000,
-    config = function()
-      require("vscode").setup({})
-    end,
-  },
   { "nvim-tree/nvim-web-devicons" },
 
   -- 输入法自动切换插件
@@ -181,6 +277,7 @@ dap.configurations.cpp = {
   },
 }    end
   },
+
 })
 
 vim.api.nvim_set_keymap('i', '<A-k>', '<Down>', {noremap = true, silent = true})
@@ -273,7 +370,6 @@ vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
 vim.o.background = "dark"
-vim.cmd([[colorscheme vscode]])
 
 -- 输入法自动切换（根据平台）
 if vim.fn.has('mac') == 1 then
@@ -405,6 +501,8 @@ db.setup({
     },
   },
 })
+
+
 
 -- CompetiTest
 
@@ -565,19 +663,5 @@ vim.cmd[[colorscheme tokyonight]]
 vim.opt.termguicolors = true
 require("bufferline").setup{}
 
---neoscroll
-require('neoscroll').setup({
+-- 滚动
 
-  pre_hook = function()
-    vim.opt.eventignore:append({
-      'WinScrolled',
-      'CursorMoved',
-    })
-  end,
-  post_hook = function()
-    vim.opt.eventignore:remove({
-      'WinScrolled',
-      'CursorMoved',
-    })
-  end,
-})
