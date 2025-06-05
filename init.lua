@@ -17,6 +17,8 @@ end
 vim.opt.rtp:prepend(lazypath)
 -- 安装插件管理器 lazy.nvim
 require("lazy").setup({
+
+
     -- 侧边滚动
     'dstein64/nvim-scrollview',
     -- bufferline
