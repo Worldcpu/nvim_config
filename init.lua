@@ -282,8 +282,8 @@ dap.configurations.cpp = {
 
 })
 
-vim.api.nvim_set_keymap('i', '<A-k>', '<Down>', {noremap = true, silent = true})
-vim.api.nvim_set_keymap('i', '<A-j>', '<Up>', {noremap = true, silent = true})
+vim.api.nvim_set_keymap('i', '<A-j>', '<Down>', {noremap = true, silent = true})
+vim.api.nvim_set_keymap('i', '<A-k>', '<Up>', {noremap = true, silent = true})
 vim.api.nvim_set_keymap('i', '<A-h>', '<Left>', {noremap = true, silent = true})
 vim.api.nvim_set_keymap('i', '<A-l>', '<Right>', {noremap = true, silent = true})
 
