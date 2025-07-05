@@ -658,12 +658,11 @@ require("noice").setup({
   },
 })
 
--- TokyoNight
+-- TokyoNightset clipboard=unnamedplus
 vim.cmd[[colorscheme tokyonight]]
 
 --bufferline
 vim.opt.termguicolors = true
 require("bufferline").setup{}
 
--- 滚动
-
+-- WSLclipboard
