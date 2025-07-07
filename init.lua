@@ -304,7 +304,6 @@ require("mason").setup()
 require("mason-lspconfig").setup({
   ensure_installed = { "clangd" },
 })
-require("lspconfig").clangd.setup({})
 
 -- illuminate 配置
 require('illuminate').configure()
@@ -596,7 +595,7 @@ require('competitest').setup {
 	compile_directory = ".",
 	compile_command = {
 		c = { exec = "gcc", args = { "-Wall", "$(FNAME)", "-o", "$(FNOEXT)" } },
-		cpp = { exec = "g++", args = { "-Wall", "$(FNAME)", "-o", "$(FNOEXT)" } },
+		cpp = { exec = "g++", args = { "-fsanitize=address","-Wall","-Wextra","-Og","-g", "$(FNAME)", "-o", "$(FNOEXT)" } },
 		rust = { exec = "rustc", args = { "$(FNAME)" } },
 		java = { exec = "javac", args = { "$(FNAME)" } },
 	},
@@ -660,9 +659,27 @@ require("noice").setup({
 
 -- TokyoNightset clipboard=unnamedplus
 vim.cmd[[colorscheme tokyonight]]
-
 --bufferline
 vim.opt.termguicolors = true
 require("bufferline").setup{}
 
 -- WSLclipboard
+if vim.fn.executable("win32yank") == 1 then
+    vim.api.nvim_set_keymap('n', '<leader>y', ':lua require("my.clipboard").copy()<CR>', { noremap = true, silent = true })
+    vim.api.nvim_set_keymap('n', '<leader>p', ':lua require("my.clipboard").paste()<CR>', { noremap = true, silent = true })
+
+    local my = {}
+    my.clipboard = {}
+
+    function my.clipboard.copy()
+        local content = vim.fn.getreg('+')
+        vim.fn.system("win32yank --input=clipboard", content)
+    end
+
+    function my.clipboard.paste()
+        local content = vim.fn.system("win32yank --output=clipboard")
+        vim.fn.setreg('+', content)
+    end
+
+    _G.my = my
+end
